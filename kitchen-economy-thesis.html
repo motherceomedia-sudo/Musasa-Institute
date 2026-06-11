@@ -409,9 +409,13 @@ body::after{
 <!-- DOWNLOAD BAR -->
 <div class="dl-bar">
   <div class="dl-bar-title">The Kitchen Economy · Musasa π∞ Q∞ Institute</div>
-  <button class="dl-btn primary" onclick="window.print()">⬇ Print / Save PDF</button>
-  <button class="dl-btn" onclick="saveHTML()">⬇ Save HTML</button>
-  <button class="dl-btn" onclick="saveText()">⬇ Plain Text</button>
+  <a href="kitchen-economy-thesis.html" download="Musasa_Institute_Kitchen_Economy_Thesis.html" style="text-decoration: none;">
+  <button class="dl-btn primary">⬇ Save HTML for Offline Study</button>
+</a>
+
+<a href="kitchen-economy-thesis.html" download="Musasa_Institute_Kitchen_Economy_Thesis.txt" style="text-decoration: none;">
+  <button class="dl-btn">⬇ Plain Text Backup</button>
+</a>
 </div>
 
 <!-- DOCUMENT -->
@@ -804,53 +808,8 @@ body::after{
       🌻🫛🍅🍓🍑🫒🫘🧄🍄🫜🌽🥑🥭🍎🌶🥒
     </div>
   </div>
-<script>
-function saveHTML() {
-  try {
-    // 1. Get the entire text content of this live document
-    const htmlContent = document.documentElement.outerHTML;
-    
-    // 2. Convert it into a downloadable binary blob
-    const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
-    
-    // 3. Create a temporary invisible bridge link
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'Musasa_Institute_Kitchen_Economy_Thesis.html';
-    
-    // 4. Trigger the download automatically onto the phone/device
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  } catch (e) {
-    alert("Offline saving not supported on this browser window. Please use the 'Print / Save PDF' option instead.");
-  }
-}
 
-function saveText() {
-  try {
-    // 1. Target just the core document text content to strip away the layout code
-    const element = document.getElementById('docContent') || document.body;
-    const textContent = element.innerText || element.textContent;
-    
-    // 2. Add an archival reference header for citations
-    const finalArchivalText = `MUSASA INSTITUTE ARCHIVE\nTHE KITCHEN ECONOMY THESIS\nAuthor: Evans Musasa\nLicense: CC BY-NC-ND 4.0 (Attribution-NonCommercial-NoDerivatives)\nSource: https://evansmusasa.github.io/Musasa-Institute/\n\n=========================================\n\n${textContent}`;
-    
-    // 3. Convert and drop the text file node
-    const blob = new Blob([finalArchivalText], { type: 'text/plain;charset=utf-8' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'Musasa_Institute_Kitchen_Economy_Thesis.txt';
-    
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  } catch (e) {
-    alert("Plain text export failed on this device.");
-  }
-}
-</script>
-
+   
 </body>
 </html>
 </div><!-- /doc -->
