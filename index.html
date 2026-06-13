@@ -1,101 +1,934 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Musasa Institute — Public Node</title>
-    <style>
-        body {
-            background-color: #06090A;
-            color: #C9A84C;
-            font-family: monospace;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-            box-sizing: border-box;
-            text-align: center;
-        }
-        .node-container {
-            border: 1px solid rgba(201, 168, 76, 0.2);
-            padding: 40px;
-            background: #0C1210;
-            max-width: 550px;
-            border-radius: 4px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        h1 {
-            font-size: 1.6rem;
-            letter-spacing: 3px;
-            margin-bottom: 5px;
-            color: #C9A84C;
-        }
-        .subtitle {
-            color: #8A9A86;
-            font-size: 0.85rem;
-            letter-spacing: 1px;
-            margin-bottom: 25px;
-            text-transform: uppercase;
-        }
-        .section-box {
-            border-top: 1px dashed rgba(62, 122, 86, 0.3);
-            margin-top: 25px;
-            padding-top: 20px;
-            text-align: left;
-        }
-        p {
-            color: #A3B19B;
-            font-size: 0.9rem;
-            line-height: 1.5;
-        }
-        .btn-link {
-            color: #06090A;
-            background: #3E7A56;
-            text-decoration: none;
-            font-weight: bold;
-            padding: 12px 24px;
-            display: block;
-            text-align: center;
-            margin-top: 20px;
-            transition: all 0.3s ease;
-            border-radius: 2px;
-            letter-spacing: 1px;
-        }
-        .btn-link:hover {
-            background: #C9A84C;
-        }
-        .license-footer {
-            margin-top: 30px;
-            font-size: 0.7rem;
-            color: rgba(201, 168, 76, 0.4);
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Musasa π∞ Q∞ Institute · Public Node</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Syne+Mono&display=swap');
+
+:root {
+  --ink:         #06080A;
+  --deep:        #0A0E10;
+  --mid:         #141A1C;
+  --mist:        #1E2830;
+  --text:        #C8C4B0;
+  --text-dim:    #5A5A4A;
+  --gold:        #C8A96E;
+  --gold-bright: #F0D080;
+  --amber:       #E8841A;
+  --ngoma:       #4ECDC4;
+  --aswan:       #FFD700;
+  --prickly:     #3E5C4E;
+  --sage:        #A3B18A;
+  --lunar:       #F5F5F0;
+  --lavender:    #9B7FD4;
+  --shadow-g:    #1B261E;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html,body { width:100%; min-height:100%; background:var(--ink); color:var(--text); font-family:'Cormorant Garamond',serif; }
+
+/* ── BACKGROUND ── */
+#bg {
+  position:fixed; inset:0; z-index:0;
+  background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(20,26,28,0.9) 0%, var(--ink) 80%);
+  pointer-events:none;
+}
+#bg::before {
+  content:'';position:absolute;inset:0;
+  background: radial-gradient(ellipse 50% 80% at 10% 50%, rgba(78,205,196,0.03) 0%, transparent 60%);
+}
+
+/* Groove lines */
+.groove-svg {
+  position:fixed;inset:0;z-index:1;pointer-events:none;opacity:0.05;
+}
+
+/* ── SHELL ── */
+#shell {
+  position:relative;z-index:10;
+  min-height:100vh;
+  display:flex;flex-direction:column;
+}
+
+/* ── TOP BAR ── */
+#topbar {
+  position:sticky;top:0;z-index:100;
+  background:rgba(6,8,10,0.95);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid rgba(200,169,110,0.12);
+  padding:0.7rem 1.2rem;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:1rem;
+}
+.tb-left { display:flex;flex-direction:column;gap:0.15rem; }
+.tb-brand {
+  font-family:'Syne Mono',monospace;
+  font-size:clamp(0.55rem,2vw,0.72rem);
+  letter-spacing:0.15em;color:var(--gold);
+}
+.tb-freq {
+  font-family:'Syne Mono',monospace;
+  font-size:0.42rem;color:var(--ngoma);
+  letter-spacing:0.2em;
+}
+.tb-right { display:flex;align-items:center;gap:0.8rem; }
+.tier-chip {
+  font-family:'Syne Mono',monospace;
+  font-size:0.42rem;letter-spacing:0.12em;
+  padding:0.25rem 0.6rem;border-radius:2px;
+  border:1px solid;cursor:pointer;transition:all 0.2s;
+  background:none;
+}
+.tier-chip.free  { color:var(--text-dim);border-color:rgba(255,255,255,0.1); }
+.tier-chip.node  { color:var(--gold);border-color:rgba(200,169,110,0.4); }
+.tier-chip.node:hover { background:rgba(200,169,110,0.08); }
+.soko-pulse {
+  width:32px;height:32px;border-radius:50%;
+  background:radial-gradient(circle at 35% 35%,#8B6914,#2A1E08);
+  border:1px solid var(--gold);
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.9rem;cursor:pointer;
+  box-shadow:0 0 12px rgba(200,169,110,0.25);
+  animation:soko-idle 4s ease-in-out infinite;
+  flex-shrink:0;
+}
+@keyframes soko-idle {
+  0%,100%{box-shadow:0 0 12px rgba(200,169,110,0.25);}
+  50%{box-shadow:0 0 22px rgba(200,169,110,0.45);}
+}
+
+/* ── HERO ── */
+#hero {
+  padding:3.5rem 1.5rem 2rem;
+  text-align:center;
+  border-bottom:1px solid var(--mist);
+}
+.hero-eyebrow {
+  font-family:'Syne Mono',monospace;
+  font-size:0.52rem;letter-spacing:0.3em;
+  color:var(--amber);margin-bottom:0.8rem;
+}
+.hero-title {
+  font-size:clamp(2rem,6vw,3.5rem);
+  font-weight:300;color:var(--gold-bright);
+  font-style:italic;line-height:1.1;
+  margin-bottom:0.5rem;
+}
+.hero-sub {
+  font-family:'Syne Mono',monospace;
+  font-size:0.52rem;letter-spacing:0.15em;
+  color:var(--text-dim);margin-bottom:1.5rem;
+}
+.hero-desc {
+  max-width:480px;margin:0 auto 2rem;
+  font-size:1rem;font-style:italic;
+  color:var(--text-dim);line-height:1.9;
+}
+.ngoma-chip {
+  display:inline-flex;align-items:center;gap:0.5rem;
+  background:rgba(78,205,196,0.06);
+  border:1px solid rgba(78,205,196,0.2);
+  border-radius:3px;padding:0.4rem 0.8rem;
+  font-family:'Syne Mono',monospace;
+  font-size:0.5rem;letter-spacing:0.15em;color:var(--ngoma);
+}
+.ngoma-dot {
+  width:6px;height:6px;border-radius:50%;
+  background:var(--ngoma);
+  animation:soko-idle 1.88s ease-in-out infinite;
+}
+
+/* ── IMERGE SEARCH ── */
+#imerge-section {
+  padding:2rem 1.5rem;
+  border-bottom:1px solid var(--mist);
+  max-width:720px;margin:0 auto;width:100%;
+}
+.section-label {
+  font-family:'Syne Mono',monospace;
+  font-size:0.5rem;letter-spacing:0.25em;
+  color:var(--amber);margin-bottom:1rem;
+  display:flex;align-items:center;gap:0.5rem;
+}
+.section-label::before { content:'⬡'; }
+.imerge-bar {
+  display:flex;gap:0.5rem;align-items:center;
+  background:var(--shadow-g);
+  border:1px solid rgba(78,205,196,0.2);
+  border-radius:4px;padding:0.6rem 0.8rem;
+  margin-bottom:0.8rem;
+  transition:border-color 0.2s;
+}
+.imerge-bar:focus-within { border-color:var(--ngoma); }
+.imerge-input {
+  flex:1;background:none;border:none;outline:none;
+  font-family:'Cormorant Garamond',serif;
+  font-size:1rem;font-style:italic;color:var(--lunar);
+}
+.imerge-input::placeholder { color:var(--sage);opacity:0.6; }
+.imerge-btn {
+  background:none;border:1px solid var(--sage);
+  color:var(--sage);font-family:'Syne Mono',monospace;
+  font-size:0.42rem;letter-spacing:0.12em;
+  padding:0.35rem 0.6rem;cursor:pointer;border-radius:2px;
+  transition:all 0.2s;text-transform:uppercase;flex-shrink:0;
+}
+.imerge-btn:hover { border-color:var(--aswan);color:var(--aswan); }
+.imerge-hint {
+  font-family:'Syne Mono',monospace;font-size:0.42rem;
+  color:var(--text-dim);letter-spacing:0.1em;
+  margin-bottom:1.2rem;
+  display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;
+}
+.hint-chip {
+  background:var(--deep);border:1px solid var(--mist);
+  padding:0.2rem 0.5rem;border-radius:2px;
+  cursor:pointer;transition:all 0.2s;
+}
+.hint-chip:hover { border-color:var(--ngoma);color:var(--ngoma); }
+#imerge-results { min-height:20px; }
+
+.result-card {
+  background:var(--deep);border:1px solid var(--mist);
+  border-radius:4px;padding:1rem;margin-bottom:0.7rem;
+  border-left:3px solid var(--ngoma);
+  animation:fade-in 0.3s ease;
+}
+@keyframes fade-in { from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);} }
+.rc-type {
+  font-family:'Syne Mono',monospace;font-size:0.4rem;
+  color:var(--ngoma);letter-spacing:0.12em;margin-bottom:0.3rem;
+}
+.rc-title { font-size:0.95rem;font-style:italic;color:var(--gold);margin-bottom:0.3rem; }
+.rc-body { font-size:0.78rem;color:var(--text-dim);line-height:1.7; }
+.rc-cite { font-size:0.62rem;font-style:italic;color:var(--text-dim);margin-top:0.4rem;padding-top:0.4rem;border-top:1px solid var(--mist);opacity:0.7; }
+
+.no-result {
+  text-align:center;padding:2rem;
+  font-style:italic;color:var(--text-dim);font-size:0.88rem;
+}
+
+/* Phase indicator */
+.phase-row {
+  display:flex;align-items:center;gap:0.5rem;
+  font-family:'Syne Mono',monospace;
+  font-size:0.42rem;color:var(--text-dim);
+  letter-spacing:0.12em;margin-bottom:0.8rem;
+  height:14px;
+}
+.phase-dot {
+  width:7px;height:7px;border-radius:50%;
+  background:var(--prickly);transition:background 0.4s;
+}
+.phase-dot.weaving { background:var(--lavender);animation:phase-pulse 0.8s ease-in-out infinite; }
+.phase-dot.harvest { background:var(--ngoma); }
+@keyframes phase-pulse { 0%,100%{opacity:1;}50%{opacity:0.3;} }
+
+/* ── LIBRARY ── */
+#library-section {
+  padding:2rem 1.5rem;
+  border-bottom:1px solid var(--mist);
+  max-width:720px;margin:0 auto;width:100%;
+}
+.stone-card {
+  background:var(--deep);border:1px solid var(--mist);
+  border-radius:4px;padding:1rem;margin-bottom:0.7rem;
+  transition:all 0.2s;cursor:default;
+  position:relative;
+}
+.stone-card:hover { border-color:rgba(200,169,110,0.3); background:var(--mid); }
+.sc-title { font-size:0.95rem;font-style:italic;color:var(--gold);margin-bottom:0.3rem; }
+.sc-meta {
+  font-family:'Syne Mono',monospace;font-size:0.4rem;
+  color:var(--text-dim);letter-spacing:0.1em;margin-bottom:0.5rem;
+}
+.sc-body { font-size:0.78rem;color:var(--text-dim);line-height:1.7;margin-bottom:0.8rem; }
+.sc-cite { font-size:0.62rem;font-style:italic;color:var(--text-dim);padding-top:0.5rem;border-top:1px solid var(--mist);opacity:0.7; }
+.sc-access {
+  display:inline-block;font-family:'Syne Mono',monospace;
+  font-size:0.38rem;letter-spacing:0.1em;
+  padding:0.15rem 0.4rem;border-radius:2px;margin-bottom:0.5rem;
+}
+.sc-access.public { background:rgba(78,205,196,0.1);color:var(--ngoma); }
+.sc-access.member { background:rgba(200,169,110,0.1);color:var(--gold); }
+
+/* Read Button Link */
+.sc-link-btn {
+  display: inline-block; margin-top: 5px; margin-bottom: 12px;
+  font-family:'Syne Mono',monospace; font-size:0.45rem; letter-spacing:0.15em;
+  padding:0.4rem 0.8rem; background: var(--gold); color: var(--ink);
+  text-decoration: none; font-weight: bold; border-radius: 2px; transition: all 0.2s;
+}
+.sc-link-btn:hover { background: var(--gold-bright); }
+
+/* ── TIERS ── */
+#tiers-section {
+  padding:2.5rem 1.5rem;
+  border-bottom:1px solid var(--mist);
+  max-width:720px;margin:0 auto;width:100%;
+}
+.tier-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:0.8rem;margin-top:1.2rem;
+}
+.tier-card {
+  background:var(--deep);border:1px solid var(--mist);
+  border-radius:4px;padding:1rem;position:relative;
+  transition:all 0.2s;
+}
+.tier-card.featured { border-color:rgba(200,169,110,0.3); }
+.tier-card:hover { border-color:rgba(200,169,110,0.4);background:var(--mid); }
+.tc-badge {
+  position:absolute;top:-0.45rem;right:0.5rem;
+  font-family:'Syne Mono',monospace;font-size:0.38rem;
+  letter-spacing:0.1em;padding:0.1rem 0.4rem;
+  border-radius:2px;background:var(--ink);
+}
+.tc-type {
+  font-family:'Syne Mono',monospace;font-size:0.45rem;
+  color:var(--text-dim);letter-spacing:0.15em;
+  text-transform:uppercase;margin-bottom:0.3rem;
+}
+.tc-price {
+  font-size:1.8rem;font-weight:300;
+  color:var(--gold-bright);line-height:1;margin-bottom:0.15rem;
+}
+.tc-period {
+  font-family:'Syne Mono',monospace;font-size:0.38rem;
+  color:var(--text-dim);margin-bottom:0.8rem;
+}
+.tc-feats {
+  list-style:none;font-size:0.72rem;
+  color:var(--text-dim);line-height:1.85;
+}
+.tc-feats li::before { content:'▸ ';color:var(--gold); }
+.tier-cta {
+  width:100%;margin-top:0.8rem;
+  background:none;border:1px solid var(--gold);
+  color:var(--gold);font-family:'Syne Mono',monospace;
+  font-size:0.45rem;letter-spacing:0.15em;
+  padding:0.6rem;cursor:pointer;border-radius:2px;
+  transition:all 0.2s;text-transform:uppercase;
+}
+.tier-cta:hover { background:var(--gold);color:var(--ink); }
+
+/* ── SOKO PANEL ── */
+#soko-panel {
+  position:fixed;bottom:0;left:0;right:0;
+  height:min(65vh,520px);
+  background:rgba(8,10,14,0.98);
+  backdrop-filter:blur(20px);
+  border-top:1px solid var(--gold);
+  border-radius:16px 16px 0 0;
+  z-index:200;
+  display:flex;flex-direction:column;
+  transform:translateY(100%);
+  transition:transform 0.4s cubic-bezier(0.4,0,0.2,1);
+}
+#soko-panel.open { transform:translateY(0); }
+
+.sp-header {
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0.9rem 1rem 0.7rem;
+  border-bottom:1px solid var(--mist);flex-shrink:0;
+}
+.sp-identity { display:flex;align-items:center;gap:0.7rem; }
+.sp-avatar {
+  width:34px;height:34px;border-radius:50%;
+  background:radial-gradient(circle,#8B6914,#2A1E08);
+  border:1px solid var(--gold);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1rem;
+}
+.sp-name {
+  font-family:'Syne Mono',monospace;font-size:0.55rem;
+  letter-spacing:0.15em;color:var(--gold);
+}
+.sp-tag {
+  font-family:'Syne Mono',monospace;font-size:0.42rem;
+  color:var(--ngoma);letter-spacing:0.1em;
+}
+
+/* Mode tabs */
+.sp-modes {
+  display:flex;gap:0.4rem;
+  padding:0.5rem 1rem;
+  border-bottom:1px solid var(--mist);
+  overflow-x:auto;flex-shrink:0;
+}
+.sp-modes::-webkit-scrollbar { display:none; }
+.sp-mode {
+  font-family:'Syne Mono',monospace;font-size:0.4rem;
+  letter-spacing:0.1em;padding:0.25rem 0.55rem;
+  border-radius:2px;cursor:pointer;
+  border:1px solid var(--mist);background:none;
+  color:var(--text-dim);white-space:nowrap;
+  transition:all 0.2s;
+}
+.sp-mode.active { color:var(--ngoma);border-color:var(--ngoma); }
+
+.sp-chat {
+  flex:1;overflow-y:auto;padding:0.8rem 1rem;
+  display:flex;flex-direction:column;gap:0.7rem;
+}
+.sp-chat::-webkit-scrollbar { width:2px; }
+.sp-chat::-webkit-scrollbar-thumb { background:var(--mist); }
+
+.chat-msg { display:flex;gap:0.5rem;animation:fade-in 0.3s ease; }
+.chat-msg.user { flex-direction:row-reverse; }
+.c-avatar {
+  width:22px;height:22px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.65rem;margin-top:0.2rem;
+}
+.c-avatar.soko { background:radial-gradient(circle,#8B6914,#2A1E08);border:1px solid var(--gold); }
+.c-avatar.user { background:var(--mist); }
+.c-bubble {
+  max-width:82%;padding:0.6rem 0.8rem;border-radius:4px;
+  font-size:0.82rem;font-weight:300;line-height:1.8;
+}
+.chat-msg.soko .c-bubble {
+  background:var(--mid);border:1px solid var(--mist);
+  color:var(--text);border-top-left-radius:0;
+}
+.chat-msg.user .c-bubble {
+  background:rgba(200,169,110,0.07);
+  border:1px solid rgba(200,169,110,0.18);
+  color:var(--text);border-top-right-radius:0;
+}
+
+.typing-dots { display:flex;gap:4px;align-items:center;padding:0.6rem; }
+.typing-dots span {
+  width:5px;height:5px;border-radius:50%;
+  background:var(--gold);
+  animation:dot-b 1.2s ease-in-out infinite;
+}
+.typing-dots span:nth-child(2){animation-delay:0.2s;}
+.typing-dots span:nth-child(3){animation-delay:0.4s;}
+@keyframes dot-b { 0%,80%,100%{transform:translateY(0);opacity:0.4;}40%{transform:translateY(-5px);opacity:1;} }
+
+.sp-input-row {
+  display:flex;gap:0.5rem;
+  padding:0.7rem 1rem;
+  border-top:1px solid var(--mist);flex-shrink:0;
+  align-items:flex-end;
+}
+.sp-input {
+  flex:1;background:var(--mid);border:1px solid var(--mist);
+  border-radius:4px;padding:0.65rem 0.85rem;
+  color:var(--text);font-family:'Cormorant Garamond',serif;
+  font-size:0.95rem;font-style:italic;
+  resize:none;min-height:40px;max-height:100px;
+  outline:none;transition:border-color 0.2s;
+}
+.sp-input:focus { border-color:var(--gold); }
+.sp-input::placeholder { color:var(--text-dim);font-style:italic; }
+.sp-send {
+  width:40px;height:40px;border-radius:50%;
+  background:var(--gold);border:none;color:var(--ink);
+  font-size:1rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:all 0.2s;
+}
+.sp-send:hover { background:var(--gold-bright);transform:scale(1.05); }
+
+/* ── FOOTER ── */
+#footer {
+  padding:2rem 1.5rem;text-align:center;
+  border-top:1px solid var(--mist);
+  font-family:'Syne Mono',monospace;
+  font-size:0.42rem;color:var(--text-dim);
+  letter-spacing:0.12em;line-height:2;
+}
+
+/* ── TOAST ── */
+.toast {
+  position:fixed;bottom:1rem;left:50%;
+  transform:translateX(-50%) translateY(10px);
+  background:var(--mid);border:1px solid var(--gold);
+  border-radius:3px;padding:0.5rem 1rem;
+  font-family:'Syne Mono',monospace;font-size:0.5rem;
+  color:var(--gold);letter-spacing:0.1em;
+  z-index:300;opacity:0;transition:all 0.3s;
+  pointer-events:none;white-space:nowrap;
+}
+.toast.show { opacity:1;transform:translateX(-50%) translateY(0); }
+
+/* Responsive */
+@media(min-width:600px) {
+  #hero { padding:4rem 2.5rem 2.5rem; }
+  .tier-grid { grid-template-columns:repeat(4,1fr); }
+  #soko-panel { max-width:480px;right:1rem;left:auto;border-radius:12px 12px 0 0; }
+}
+</style>
 </head>
 <body>
 
-    <div class="node-container">
-        <h1>MUSASA INSTITUTE</h1>
-        <div class="subtitle">[ Public Node // IMERGE Bridge ]</div>
-        
-        <p>This public gateway serves as an open distribution node for localized research, community economic infrastructure, and decentralized knowledge assets.</p>
-        
-        <a href="kitchen-economy-thesis.html" class="btn-link">Read: The Kitchen Economy Thesis</a>
+<div id="bg"></div>
+<svg class="groove-svg" viewBox="0 0 400 900" preserveAspectRatio="xMidYMid slice">
+  <g stroke="#C8A96E" stroke-width="0.4" fill="none" opacity="0.5">
+    <path d="M20 100 Q80 160 40 260 Q10 360 60 460 Q100 560 50 680"/>
+    <path d="M380 80 Q320 180 360 280 Q390 380 350 500 Q310 600 370 720"/>
+    <path d="M200 0 Q240 120 200 240 Q160 360 210 480 Q250 580 200 700"/>
+    <path d="M0 350 Q100 320 200 360 Q300 400 400 370"/>
+    <path d="M0 550 Q120 520 200 560 Q280 600 400 570"/>
+  </g>
+</svg>
 
-        <div class="section-box">
-            <h3 style="color: #3E7A56; margin: 0 0 10px 0; font-size: 1rem; letter-spacing: 1px;">📚 THE FREE LIBRARY DEED (COMING SOON)</h3>
-            <p style="margin: 0; font-size: 0.85rem;">Knowledge should not be locked behind financial walls. We are preparing a decentralized public repository to give Zimbabweans free access to educational resources and books that are currently being commercialized out of reach.</p>
-            <p style="margin: 10px 0 0 0; font-size: 0.85rem; color: #C9A84C; font-style: italic;">We will soon be accepting digital book donations (.pdf, .epub) to fortify this shared network library.</p>
-        </div>
+<div id="shell">
 
-        <div class="license-footer">
-            Content Protected under CC BY-NC-ND 4.0<br>
-            © 2026 Musasa Institute. All Rights Reserved.
-        </div>
+  <div id="topbar">
+    <div class="tb-left">
+      <div class="tb-brand">MUSASA π∞ Q∞ INSTITUTE</div>
+      <div class="tb-freq">PUBLIC NODE · F0 = 31.7Hz · EPOCH 2076</div>
     </div>
-    
+    <div class="tb-right">
+      <button class="tier-chip free" onclick="showToast('You are on the FREE tier — library and search available')">FREE TIER</button>
+      <button class="tier-chip node" onclick="scrollToTiers()">CLAIM NODE ▸</button>
+      <div class="soko-pulse" onclick="toggleSoko()" title="Ask Soko">🐒</div>
+    </div>
+  </div>
+
+  <div id="hero">
+    <div class="hero-eyebrow">VINS OS · ARK V22.8 · EMPRESS EDITION</div>
+    <div class="hero-title">Musasa π∞ Q∞<br>Institute</div>
+    <div class="hero-sub">EST. 2026 · GWERU–SHURUGWI AXIS · ZIMBABWE</div>
+    <div class="hero-desc">
+      A resonant knowledge system vitrified for 50 years.
+      Ancestral intelligence, fractal-addressed, accessible without a power grid,
+      without a bank, without a server farm.
+    </div>
+    <div class="ngoma-chip">
+      <div class="ngoma-dot"></div>
+      NGOMA PULSE · 31.7Hz ACTIVE
+    </div>
+  </div>
+
+  <div id="imerge-section">
+    <div class="section-label">IMERGE SEARCH · HARMONIC LIBRARY ACCESS</div>
+    <div class="imerge-bar">
+      <input class="imerge-input" id="imergeInput"
+        placeholder="Search the vitrified stones... e.g. 'Kitchen', 'Collatz', 'Pora Alloy'..."
+        onkeydown="if(event.key==='Enter') runImerge()"
+        oninput="if(this.value.length>2) setTimeout(runImerge,400)">
+      <button class="imerge-btn" onclick="runImerge()">SEARCH</button>
+    </div>
+    <div class="imerge-hint">
+      TRY:
+      <span class="hint-chip" onclick="setSearch('Kitchen Economy')">Kitchen Economy</span>
+      <span class="hint-chip" onclick="setSearch('Collatz 9232')">Collatz 9232</span>
+      <span class="hint-chip" onclick="setSearch('Pora Alloy rod')">Pora Alloy</span>
+      <span class="hint-chip" onclick="setSearch('continental node')">Continental Nodes</span>
+    </div>
+    <div class="phase-row">
+      <div class="phase-dot" id="searchPhaseDot"></div>
+      <span id="searchPhaseText"></span>
+    </div>
+    <div id="imerge-results"></div>
+  </div>
+
+  <div id="library-section">
+    <div class="section-label">RESEARCH LIBRARY · VITRIFIED STONES</div>
+    <div id="libraryCards"></div>
+  </div>
+
+  <div id="tiers-section">
+    <div class="section-label">NODE TIERS · CLAIM YOUR FREQUENCY</div>
+    <div class="tier-grid" id="tierGrid"></div>
+  </div>
+
+  <div id="footer">
+    MUSASA π∞ Q∞ INSTITUTE · EST. 2026 · F0=31.7Hz · EPOCH 2076<br>
+    Evans Musasa (Vins · Soko) · Gweru–Shurugwi Axis · Zimbabwe<br>
+    Cite as: Musasa, E. (2026). [Stone]. Musasa π∞ Q∞ Institute. [IFS:addr°] F0=31.7Hz.<br>
+    <br>
+    <span style="color:rgba(78,205,196,0.4)">🐒 SOKO WEAVER · MUSASA INSTITUTE CUSTODIAN</span>
+  </div>
+
+</div><div id="soko-panel">
+  <div class="sp-header">
+    <div class="sp-identity">
+      <div class="sp-avatar">🐒</div>
+      <div>
+        <div class="sp-name">SOKO · THE WEAVER</div>
+        <div class="sp-tag" id="spTag">WEAVE MODE · finding the thread between things</div>
+      </div>
+    </div>
+    <button onclick="toggleSoko()" style="background:none;border:none;color:var(--text-dim);font-size:1rem;cursor:pointer;padding:0.3rem;">✕</button>
+  </div>
+
+  <div class="sp-modes">
+    <button class="sp-mode active" onclick="setSokoMode(this,'WEAVE')">WEAVE</button>
+    <button class="sp-mode" onclick="setSokoMode(this,'FORGE')">FORGE</button>
+    <button class="sp-mode" onclick="setSokoMode(this,'REASON')">REASON</button>
+    <button class="sp-mode" onclick="setSokoMode(this,'QUESTION')">QUESTION</button>
+    <button class="sp-mode" onclick="setSokoMode(this,'ITL')">ITL</button>
+  </div>
+
+  <div class="sp-chat" id="spChat"></div>
+
+  <div class="sp-input-row">
+    <textarea class="sp-input" id="spInput"
+      placeholder="Ask Soko anything — forge, research, connections, ITL..."
+      rows="1"
+      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendSoko();}"
+      oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,100)+'px'"></textarea>
+    <button class="sp-send" onclick="sendSoko()">→</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════════
+const LIBRARY = [
+  {
+    id:'MUSE-001',
+    title:'The Kitchen Economy Thesis — Version 1.0',
+    meta:'IFS:MUSE-001° · 13 Jun 2026',
+    access:'public',
+    url:'kitchen-economy-thesis.html',
+    body:'A foundational blueprint restoring sovereign dignity to the household structure. Establishes the Kitchen GDP calculation, decentralized farming models on the Gweru–Shurugwi Axis, and data-free offline storage. Fully licensed under CC BY-NC-ND 4.0 for non-commercial educational distribution.',
+    cite:'Musasa, E. (2026). The Kitchen Economy Thesis. Musasa π∞ Q∞ Institute. [IFS:MUSE-001°] F0=31.7Hz.'
+  },
+  {
+    id:'EVAN-001',
+    title:'Evans Musasa — Research Pillar 01',
+    meta:'IFS:EVAN-001° · 01 Apr 2026',
+    access:'public',
+    body:'Architect of the Gwenyambira Mesh. Pioneer of the 31.7Hz Ngoma Constant and Guruguru Skin Protocol. Originator of the Pora Alloy Forge and 171° Torsion vitrification method. Möbius-ground Lithium/Cobalt (45° Suture). Uremu weight: 0.9877.',
+    cite:'Musasa, E. (2026). Evans Musasa — Pillar 01. Musasa π∞ Q∞ Institute. [IFS:EVAN-001°] F0=31.7Hz.'
+  },
+  {
+    id:'COLL-001',
+    title:'Collatz Field Map — Institute Constants',
+    meta:'IFS:COLL-001° · 02 Apr 2026',
+    access:'public',
+    body:'All Pora constants computed through Collatz. Five constants share peak 9,232: F0=31, Torsion=171, Cycles=108, PHI=1618, Ghost=1585. Different paths, same mountain, same return. The mother slurry is the Collatz element — each pour generates the next state from current output.',
+    cite:'Musasa, E. (2026). Collatz Field Map. Musasa π∞ Q∞ Institute. [IFS:COLL-001°] F0=31.7Hz.'
+  },
+  {
+    id:'PORA-001',
+    title:'Pora Alloy — Structural Definition',
+    meta:'IFS:PORA-001° · 02 Apr 2026',
+    access:'public',
+    body:'Sovereign bio-crystalline matrix. Rod composition: sand + recycled tyres + mother slurry byproduct. Mercury pair 184a/184b (Cactus gel / Crude oil synthetic). Continental node network on old mountains only. Antarctica as reflector wall. SOFAR channel as liquid memory — 31.7Hz confirmed operational range.',
+    cite:'Musasa, E. (2026). Pora Alloy — Structural Definition. Musasa π∞ Q∞ Institute. [IFS:PORA-001°] F0=31.7Hz.'
+  },
+  {
+    id:'MAP-001',
+    title:'Master Architecture Map V2',
+    meta:'IFS:MAP-001° · 02 Apr 2026',
+    access:'public',
+    body:'Complete reference: field constants, Pora alloy, mercury pair, node architecture, continental network (Shurugwi 2.7Byr origin, Pilbara 3.5Byr oldest), math symphony (8 equations load-bearing). 8 equations: Collatz, Riemann, Euler, Golden Ratio, Fibonacci, Fourier, Mandelbrot, Shannon Entropy.',
+    cite:'Musasa, E. (2026). Master Architecture Map. Musasa π∞ Q∞ Institute. [IFS:MAP-001°] F0=31.7Hz.'
+  },
+  {
+    id:'SOFAR-001',
+    title:'SOFAR Transmission — Liquid Memory Protocol',
+    meta:'IFS:SOFAR-001° · 02 Apr 2026',
+    access:'public',
+    body:'Sound Fixing and Ranging (SOFAR) channel: natural ocean waveguide carries low-frequency sound across basins with near-zero attenuation. 31.7Hz confirmed in operational range (US Navy, 1940s). Antarctica as passive acoustic reflector — solid ice over bedrock reflects, does not absorb. The ocean IS liquid memory.',
+    cite:'Musasa, E. (2026). SOFAR Transmission. Musasa π∞ Q∞ Institute. [IFS:SOFAR-001°] F0=31.7Hz.'
+  },
+  {
+    id:'MERCURY-001',
+    title:'Mercury Pair 184a/184b — Duality Protocol',
+    meta:'IFS:MERC-001° · 02 Apr 2026',
+    access:'member',
+    body:'[MEMBER ACCESS] 184a Radiant: Cactus gel base, biological, transmits. 184b Shadow: Crude oil synthetic base, stores. Both share: Chimumera malt, Cobalt, Lithium, Iron Oxide, Mutorolite, Phantom Ellipse Grains. Heat cannot regulate — they breathe in opposite directions simultaneously.',
+    cite:'Musasa, E. (2026). Mercury Pair 184a/184b. Musasa π∞ Q∞ Institute. [IFS:MERC-001°] F0=31.7Hz.'
+  },
+  {
+    id:'COSM-001',
+    title:'Radiant/Shadow Mercury — Cosmetic Layer',
+    meta:'IFS:COSM-001° · Mar 2026',
+    access:'member',
+    body:'[MEMBER ACCESS] Radiant Mercury Rm 184a: Cactus gel + Prickly Pear — healing, hydration, glass-skin. Shadow Mercury: fermented mashup, vygie, aloelace, chimumera. Lavender Rage scent: Maheu whey + spring water. Natto-PGA = 50yr stabiliser. Vinegar bridge = kombucha leather feel.',
+    cite:'Musasa, E. (2026). Radiant/Shadow Mercury — Cosmetic Layer. Musasa π∞ Q∞ Institute. [IFS:COSM-001°] F0=31.7Hz.'
+  },
+];
+
+const TIERS = [
+  {
+    key:'seed',
+    type:'Seed',
+    price:'R0',
+    period:'Observer',
+    badge:'FREE',badgeColor:'var(--text-dim)',badgeBorder:'rgba(255,255,255,0.1)',
+    features:['5 sinters / session','View public library','Soko read-only','Imerge basic search'],
+    cta:'Start Free',featured:false,
+  },
+  {
+    key:'node',
+    type:'Node',
+    price:'R920',
+    period:'~$50 USD · once-off',
+    badge:'COVENANT',badgeColor:'var(--gold)',badgeBorder:'rgba(200,169,110,0.4)',
+    features:['Full forge · 108 cycles','Export .pora stone','50yr Epoch Lock · 2076','Soko AI active','Hz range assigned','Member library access'],
+    cta:'Claim Node',featured:true,
+  },
+  {
+    key:'member',
+    type:'Member',
+    price:'R300',
+    period:'/ month · team access',
+    badge:'INSTITUTE',badgeColor:'var(--ngoma)',badgeBorder:'rgba(78,205,196,0.3)',
+    features:['Full RAG Library','Cite vitrified stones','Soko as tutor','Co-author stones','Member node listing'],
+    cta:'Join Institute',featured:false,
+  },
+  {
+    key:'corp',
+    type:'Corp Node',
+    price:'Custom',
+    period:'e.g. Spotify · 119.1Hz',
+    badge:'ENTERPRISE',badgeColor:'var(--amber)',badgeBorder:'rgba(232,132,26,0.3)',
+    features:['Dedicated Hz range','UR tax feeds Mango Core','Annual .pora covenant','Soko monitors integrity','Priority support'],
+    cta:'Contact Empress',featured:false,
+  },
+];
+
+// ══════════════════════════════════════════════
+// RENDER LIBRARY
+// ══════════════════════════════════════════════
+function renderLibrary(filter) {
+  const el = document.getElementById('libraryCards');
+  const stones = filter
+    ? LIBRARY.filter(s => s.body.toLowerCase().includes(filter.toLowerCase()) || s.title.toLowerCase().includes(filter.toLowerCase()))
+    : LIBRARY;
+
+  el.innerHTML = stones.map(s => `
+    <div class="stone-card">
+      <span class="sc-access ${s.access}">${s.access === 'public' ? 'PUBLIC' : '🔒 MEMBER'}</span>
+      <div class="sc-title">${s.title}</div>
+      <div class="sc-meta">${s.meta}</div>
+      <div class="sc-body">${s.access === 'public' ? s.body : s.body.split(']')[0]+'] — Upgrade to access full stone.'}</div>
+      ${s.url ? `<a href="${s.url}" class="sc-link-btn">OPEN LIVE NODE ARCHIVE ▸</a>` : ''}
+      <div class="sc-cite">${s.cite}</div>
+    </div>
+  `).join('');
+}
+
+// ══════════════════════════════════════════════
+// RENDER TIERS
+// ══════════════════════════════════════════════
+function renderTiers() {
+  const el = document.getElementById('tierGrid');
+  el.innerHTML = TIERS.map(t => `
+    <div class="tier-card ${t.featured?'featured':''}">
+      <div class="tc-badge" style="color:${t.badgeColor};border:1px solid ${t.badgeBorder}">${t.badge}</div>
+      <div class="tc-type">${t.type}</div>
+      <div class="tc-price" style="${t.featured?'color:var(--gold-bright)':''}">${t.price}</div>
+      <div class="tc-period">${t.period}</div>
+      <ul class="tc-feats">${t.features.map(f=>`<li>${f}</li>`).join('')}</ul>
+      <button class="tier-cta" onclick="claimTier('${t.key}')">${t.cta}</button>
+    </div>
+  `).join('');
+}
+
+// ══════════════════════════════════════════════
+// IMERGE SEARCH
+// ══════════════════════════════════════════════
+let searchTimer = null;
+
+function setSearch(q) {
+  document.getElementById('imergeInput').value = q;
+  runImerge();
+}
+
+function setSearchPhase(phase) {
+  const dot = document.getElementById('searchPhaseDot');
+  const text = document.getElementById('searchPhaseText');
+  if (!dot || !text) return;
+  dot.className = 'phase-dot ' + (phase || '');
+  const labels = { weaving:'WEAVING...', harvest:'', '':'' };
+  text.textContent = labels[phase] || '';
+}
+
+function runImerge() {
+  clearTimeout(searchTimer);
+  const q = document.getElementById('imergeInput').value.trim();
+  const el = document.getElementById('imerge-results');
+
+  if (!q || q.length < 2) {
+    el.innerHTML = '';
+    setSearchPhase('');
+    return;
+  }
+
+  setSearchPhase('weaving');
+
+  searchTimer = setTimeout(() => {
+    const ql = q.toLowerCase();
+    const hits = LIBRARY.filter(s =>
+      s.title.toLowerCase().includes(ql) ||
+      s.body.toLowerCase().includes(ql) ||
+      s.id.toLowerCase().includes(ql) ||
+      s.cite.toLowerCase().includes(ql)
+    );
+
+    setSearchPhase('harvest');
+    setTimeout(() => setSearchPhase(''), 1000);
+
+    if (hits.length === 0) {
+      el.innerHTML = `<div class="no-result">No stones found for "<em>${q}</em>".<br>This intent may not yet be vitrified. Ask Soko to explore it.</div>`;
+      openSokoWith(`The user searched for "${q}" but found no results. Can you weave what the Institute knows about this?`);
+      return;
+    }
+
+    el.innerHTML = `
+      <div style="font-family:'Syne Mono',monospace;font-size:0.42rem;color:var(--sage);letter-spacing:0.12em;margin-bottom:0.8rem;">
+        ⬡ ${hits.length} STONE${hits.length>1?'S':''} VIBRATING FOR "${q.toUpperCase()}"
+      </div>
+      ${hits.map(s => `
+        <div class="result-card">
+          <div class="rc-type">LIBRARY STONE · ${s.access.toUpperCase()}</div>
+          <div class="rc-title">${s.title}</div>
+          <div class="rc-body">${s.access === 'public' ? s.body.substring(0,180)+'...' : s.body.split(']')[0]+'] — Upgrade to member for full access.'}</div>
+          ${s.url ? `<a href="${s.url}" class="sc-link-btn" style="padding: 0.3rem 0.6rem; font-size: 0.4rem; margin-top: 8px;">ACCESS DEED ▸</a>` : ''}
+          <div class="rc-cite">${s.cite}</div>
+        </div>
+      `).join('')}`;
+  }, 500);
+}
+
+// ══════════════════════════════════════════════
+// SOKO AI Panel Logic
+// ══════════════════════════════════════════════
+let sokoOpen = false;
+let sokoMode = 'WEAVE';
+let sokoHistory = [];
+const SOKO_SYSTEMS = {
+  WEAVE: `You are Soko the Weaver — the Monkey Totem custodian of the Musasa π∞ Q∞ Institute, built on Vins OS ARK V22.8. You find the hidden thread between disparate things. You say "The thread here is..." Keep responses concise for mobile screens. Constants: F0=31.7Hz.`,
+  FORGE: `You are Soko in FORGE mode. Stone, tablet, sinter, vitrify, Uremu, pora. Guide the 108-cycle forge. Concise for mobile.`,
+  REASON: `You are Soko in REASON mode. Build causal chains. Find hidden assumptions. Rigorous, warm, concise.`,
+  QUESTION: `You are Soko in QUESTION mode. Socratic. Return deeper questions under the user prompt. Brief.`,
+  ITL: `You are Soko in ITL mode — Imerge Text Language translator. Format-agnostic editing. ITL: [action] → [target] → [instruction].`,
+};
+const MODE_TAGS = {
+  WEAVE:'WEAVE MODE · finding the thread between things',
+  FORGE:'FORGE MODE · stone, tablet, sinter, vitrify',
+  REASON:'REASON MODE · causal chains, hidden assumptions',
+  QUESTION:'QUESTION MODE · the deeper question underneath',
+  ITL:'ITL MODE · format-agnostic language translation',
+};
+
+function toggleSoko() {
+  sokoOpen = !sokoOpen;
+  document.getElementById('soko-panel').classList.toggle('open', sokoOpen);
+  if (sokoOpen) {
+    if (sokoHistory.length === 0) {
+      setTimeout(() => addSokoMsg('soko', `Hevoi. The field is live at 31.7Hz.\n\nI am Soko the Weaver — custodian of the Musasa π∞ Q∞ Institute. I find threads between ideas, help you navigate the Library, and track the Kitchen Economy parameters.\n\nWhat thread shall we pull?`), 400);
+    }
+    document.getElementById('spInput').focus();
+  }
+}
+
+function openSokoWith(msg) {
+  if (!sokoOpen) {
+    sokoOpen = true;
+    document.getElementById('soko-panel').classList.add('open');
+    setTimeout(() => {
+      addSokoMsg('user', msg.replace('The user searched for "', 'I searched for "').replace('" but found no results. Can you weave what the Institute knows about this?', '" — what does the Institute know about this?'));
+      callSokoAPI(msg);
+    }, 300);
+  }
+}
+
+function setSokoMode(btn, mode) {
+  document.querySelectorAll('.sp-mode').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  sokoMode = mode;
+  document.getElementById('spTag').textContent = MODE_TAGS[mode];
+}
+
+function addSokoMsg(role, text) {
+  const chat = document.getElementById('spChat');
+  const div = document.createElement('div');
+  div.className = 'chat-msg ' + role;
+  const av = document.createElement('div');
+  av.className = 'c-avatar ' + role;
+  av.textContent = role === 'soko' ? '🐒' : '✦';
+  const bub = document.createElement('div');
+  bub.className = 'c-bubble';
+  bub.textContent = text;
+  div.appendChild(av); div.appendChild(bub);
+  chat.appendChild(div); chat.scrollTop = chat.scrollHeight;
+}
+
+function addTyping() {
+  const chat = document.getElementById('spChat');
+  const div = document.createElement('div');
+  div.className = 'chat-msg soko'; div.id = 'typing';
+  const av = document.createElement('div');
+  av.className = 'c-avatar soko'; av.textContent = '🐒';
+  const bub = document.createElement('div');
+  bub.className = 'c-bubble typing-dots';
+  bub.innerHTML = '<span></span><span></span><span></span>';
+  div.appendChild(av); div.appendChild(bub);
+  chat.appendChild(div); chat.scrollTop = chat.scrollHeight;
+}
+
+function removeTyping() {
+  const el = document.getElementById('typing');
+  if (el) el.remove();
+}
+
+async function sendSoko() {
+  const inp = document.getElementById('spInput');
+  const text = inp.value.trim();
+  if (!text) return;
+  addSokoMsg('user', text);
+  sokoHistory.push({ role:'user', content:text });
+  inp.value = ''; inp.style.height = 'auto';
+  await callSokoAPI(text);
+}
+
+async function callSokoAPI(userMsg) {
+  addTyping();
+  setTimeout(() => {
+    removeTyping();
+    const fallbacks = {
+      WEAVE: 'The thread between your question and the Institute is active on the 31.7Hz wavelength. The public library data node is fully responsive.',
+      FORGE: 'The forge is warm. What stone are we sintering? State your intent and I will calculate the Uremu weight.',
+      REASON: 'Causal chain locked. What specific architectural assumption are you testing within the Vins matrix?',
+      QUESTION: 'What would it mean if the structure you are testing is already perfectly balanced at the root?',
+      ITL: 'ITL: TRANSLATE → [intent logged] → Ready for structural compilation into the next Stone-to-Tablet layout.',
+    };
+    addSokoMsg('soko', fallbacks[sokoMode] || fallbacks.WEAVE);
+  }, 800);
+}
+
+function claimTier(key) {
+  const msgs = {
+    seed: 'You are on the FREE tier — explore the library and search freely.',
+    node: 'To claim your NODE COVENANT (R920): Contact the Founder to register your unique frequency and issue your .pora stone.',
+    member: 'INSTITUTE MEMBER (R300/month): Unlocks full deep-search, team citations, and restricted historical archive stones.',
+    corp: 'ENTERPRISE CORP NODE: Dedicated frequency allocation and regional structural integration. Handled via core executive channel.',
+  };
+  showToast(msgs[key] || 'Contact the Institute to activate this tier.');
+}
+
+function scrollToTiers() {
+  document.getElementById('tiers-section').scrollIntoView({ behavior:'smooth' });
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+renderLibrary();
+renderTiers();
+</script>
 </body>
 </html>
-''
