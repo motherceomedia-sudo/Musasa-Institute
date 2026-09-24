@@ -4,6 +4,7 @@
 <!-- PROTOCOL: 31.7Hz | UREMU: 0.9877 | EPOCH: 2076 -->
 <head>
     <meta charset="UTF-8">
+    <link rel="manifest" href="manifest.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Musasa π∞ Q∞ Institute | Sanctuary</title>
     <style>
@@ -254,6 +255,118 @@
             text-transform: uppercase;
             cursor: pointer;
         }
+
+        .dura-save-btn {
+            margin-top: 8px;
+            align-self: flex-start;
+            background: transparent;
+            border: 1px solid var(--green);
+            color: var(--lavender);
+            padding: 6px 9px;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            letter-spacing: 0.06em;
+            cursor: pointer;
+        }
+
+        .dura-save-btn:hover {
+            background: var(--green);
+            color: white;
+        }
+
+        .dura-save-btn.saved {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        .chat-actions {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .history-btn {
+            background: transparent;
+            border: 1px solid rgba(200,169,110,0.55);
+            color: var(--gold);
+            padding: 7px 10px;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            cursor: pointer;
+        }
+
+        .dura-panel {
+            position: fixed;
+            inset: 0;
+            z-index: 200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            background: rgba(0,0,0,0.78);
+        }
+
+        .dura-panel.open { display: flex; }
+
+        .dura-card {
+            width: min(520px, 100%);
+            max-height: 82vh;
+            overflow-y: auto;
+            background: #0A0A0A;
+            border: 1px solid var(--gold);
+            border-radius: 14px;
+            padding: 18px;
+            box-shadow: 0 0 40px rgba(200,169,110,0.18);
+        }
+
+        .dura-card h2 {
+            font-size: 0.95rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .dura-card p {
+            font-size: 0.78rem;
+            margin-bottom: 14px;
+            font-style: normal;
+        }
+
+        .dura-entry {
+            border: 1px solid rgba(230,230,250,0.2);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 9px;
+            font-family: system-ui, sans-serif;
+            font-size: 0.75rem;
+            color: var(--lavender);
+        }
+
+        .dura-entry small {
+            display: block;
+            color: var(--green);
+            margin-bottom: 5px;
+        }
+
+        .dura-empty {
+            color: var(--lavender);
+            opacity: 0.7;
+            font-size: 0.8rem;
+            padding: 12px 0;
+        }
+
+        .dura-clear {
+            background: transparent;
+            border: 1px solid var(--pulse);
+            color: #FF85A2;
+            padding: 7px 10px;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            cursor: pointer;
+        }
+
     </style>
 </head>
 <body>
@@ -294,6 +407,24 @@
             <input type="text" id="mawInput" class="chat-input" placeholder="Type message to Mawuya..." onkeypress="if(event.key==='Enter') sendMawuyaChat()" />
             <button class="send-btn" onclick="sendMawuyaChat()">Send</button>
         </div>
+        <div class="chat-actions">
+            <button class="history-btn" onclick="openDuraPanel()">📚 Open Dura</button>
+            <button class="history-btn" onclick="saveCurrentConversationToDura()">💾 Save Chat to Dura</button>
+        </div>
+    </div>
+
+    <div class="dura-panel" id="duraPanel" onclick="if(event.target===this) closeDuraPanel()">
+        <div class="dura-card">
+            <div class="drawer-header">
+                <span class="title">📚 Dura · Local Memory</span>
+                <button class="close-btn" onclick="closeDuraPanel()">✕</button>
+            </div>
+            <p>Saved locally on this device. Nothing is added to Dura automatically.</p>
+            <div id="duraEntries"></div>
+            <div class="chat-actions">
+                <button class="dura-clear" onclick="clearDura()">Clear Local Dura</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -312,24 +443,200 @@ Your role:
 3. Winnow low-resonance noise from heavy logic seeds with ancestral dignity, warmth, and precision.
 4. Speak in a balanced mix of ChiShona and English, remaining gracious, sovereign, and sharp. Never repeat a static fallback loop.`;
 
-        const API_KEY = "YOUR_GEMINI_API_KEY"; // Insert active key here
-        let mawuyaMsgHistory = [];
+        // Local-first Mawuya/SokoChat memory.
+        // External AI is an optional adapter; gateway memory does not depend on it.
+        const MAWUYA_SYSTEM_PROMPT = `You are Mawuya, the Hostess, Auditor, and Public Steward of the Musasa π∞ Q∞ Institute.
+Your role:
+1. Welcome visitors warmly at the Gateway.
+2. Audit input threads for Uremu Law integrity (0.9877 baseline) and 31.7Hz Ngoma pulse alignment.
+3. Winnow low-resonance noise from heavy logic seeds with ancestral dignity, warmth, and precision.
+4. Speak in a balanced mix of ChiShona and English, remaining gracious, sovereign, and sharp.`;
 
-        function appendBubble(role, text) {
+        const API_KEY = "YOUR_GEMINI_API_KEY"; // Optional adapter; do not commit a real key.
+        const CHAT_KEY = "musasa.sokochat.history.v1";
+        const DURA_KEY = "musasa.dura.local.v1";
+        let mawuyaMsgHistory = loadLocal(CHAT_KEY, []);
+
+        function loadLocal(key, fallback) {
+            try {
+                const raw = localStorage.getItem(key);
+                return raw ? JSON.parse(raw) : fallback;
+            } catch (e) {
+                console.warn("Local storage unavailable:", e);
+                return fallback;
+            }
+        }
+
+        function saveLocal(key, value) {
+            try {
+                localStorage.setItem(key, JSON.stringify(value));
+                return true;
+            } catch (e) {
+                console.warn("Could not save locally:", e);
+                return false;
+            }
+        }
+
+        function escapeHTML(value) {
+            return String(value)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function appendBubble(role, text, saveButton = false, savedId = null) {
             const log = document.getElementById('chatLog');
             const bubble = document.createElement('div');
             bubble.className = `chat-bubble ${role}`;
-            
+
             if (role === 'mawuya') {
-                bubble.innerHTML = `<strong>Mawuya:</strong> ${text}`;
+                bubble.innerHTML = `<strong>Mawuya:</strong> ${escapeHTML(text)}`;
+                if (saveButton) {
+                    const btn = document.createElement('button');
+                    btn.className = 'dura-save-btn';
+                    btn.textContent = savedId ? '✓ Saved to Dura' : '📚 Save to Dura';
+                    if (savedId) btn.classList.add('saved');
+                    btn.onclick = () => saveExchangeToDura(text, btn);
+                    bubble.appendChild(btn);
+                }
             } else if (role === 'user') {
-                bubble.innerHTML = `<strong>You:</strong> ${text}`;
+                bubble.innerHTML = `<strong>You:</strong> ${escapeHTML(text)}`;
             } else {
                 bubble.innerText = text;
             }
 
             log.appendChild(bubble);
             log.scrollTop = log.scrollHeight;
+        }
+
+        function renderHistory() {
+            const log = document.getElementById('chatLog');
+            log.innerHTML = '';
+            if (!mawuyaMsgHistory.length) {
+                appendBubble('mawuya',
+                    'Mahuru Wevhu, Changamire! Welcome to the Musasa Institute Sanctuary. I am Mawuya, Hostess and System Auditor. How may I serve your vision today?'
+                );
+                return;
+            }
+
+            for (let i = 0; i < mawuyaMsgHistory.length; i++) {
+                const m = mawuyaMsgHistory[i];
+                appendBubble(
+                    m.role === 'assistant' ? 'mawuya' : 'user',
+                    m.content,
+                    m.role === 'assistant',
+                    m.duraId || null
+                );
+            }
+        }
+
+        function saveChatHistory() {
+            saveLocal(CHAT_KEY, mawuyaMsgHistory);
+        }
+
+        function getDuraEntries() {
+            return loadLocal(DURA_KEY, []);
+        }
+
+        function saveDuraEntries(entries) {
+            return saveLocal(DURA_KEY, entries);
+        }
+
+        function saveExchangeToDura(replyText, button) {
+            const index = mawuyaMsgHistory.map(m => m.role).lastIndexOf('assistant');
+            const previousUser = index > 0 && mawuyaMsgHistory[index - 1].role === 'user'
+                ? mawuyaMsgHistory[index - 1].content
+                : '';
+
+            const entries = getDuraEntries();
+            const existing = entries.find(e => e.sourceMessage === replyText);
+
+            if (existing) {
+                button.textContent = '✓ Saved to Dura';
+                button.classList.add('saved');
+                return;
+            }
+
+            const entry = {
+                id: 'dura-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8),
+                type: 'conversation',
+                title: previousUser ? previousUser.slice(0, 70) : 'SokoChat conversation',
+                question: previousUser,
+                answer: replyText,
+                source: 'SokoChat',
+                status: 'LOCAL_SAVED',
+                timestamp: new Date().toISOString()
+            };
+
+            entries.unshift(entry);
+            saveDuraEntries(entries);
+
+            // Mark the assistant message as saved in chat history.
+            const msg = mawuyaMsgHistory[index];
+            if (msg) msg.duraId = entry.id;
+            saveChatHistory();
+
+            button.textContent = '✓ Saved to Dura';
+            button.classList.add('saved');
+        }
+
+        function saveCurrentConversationToDura() {
+            if (!mawuyaMsgHistory.length) return;
+
+            const entries = getDuraEntries();
+            const transcript = mawuyaMsgHistory.map(m =>
+                `${m.role === 'assistant' ? 'Mawuya' : 'You'}: ${m.content}`
+            ).join('\n');
+
+            entries.unshift({
+                id: 'dura-chat-' + Date.now(),
+                type: 'conversation_transcript',
+                title: 'SokoChat session',
+                transcript,
+                source: 'SokoChat',
+                status: 'LOCAL_SAVED',
+                timestamp: new Date().toISOString()
+            });
+
+            saveDuraEntries(entries);
+            alert('SokoChat session saved to local Dura.');
+            openDuraPanel();
+        }
+
+        function openDuraPanel() {
+            const panel = document.getElementById('duraPanel');
+            const container = document.getElementById('duraEntries');
+            const entries = getDuraEntries();
+
+            container.innerHTML = '';
+
+            if (!entries.length) {
+                container.innerHTML = '<div class="dura-empty">Dura is empty on this device. Save a useful exchange from SokoChat to begin.</div>';
+            } else {
+                entries.forEach(entry => {
+                    const div = document.createElement('div');
+                    div.className = 'dura-entry';
+                    const body = entry.answer
+                        ? `<strong>${escapeHTML(entry.title)}</strong><br><br>${escapeHTML(entry.answer)}`
+                        : escapeHTML(entry.transcript || '');
+                    div.innerHTML = `<small>${escapeHTML(entry.timestamp)} · ${escapeHTML(entry.status)}</small>${body}`;
+                    container.appendChild(div);
+                });
+            }
+
+            panel.classList.add('open');
+        }
+
+        function closeDuraPanel() {
+            document.getElementById('duraPanel').classList.remove('open');
+        }
+
+        function clearDura() {
+            if (!confirm('Clear the locally saved Dura entries on this device?')) return;
+            localStorage.removeItem(DURA_KEY);
+            openDuraPanel();
         }
 
         async function sendMawuyaChat() {
@@ -342,17 +649,20 @@ Your role:
             inputEl.value = '';
             mawuyaMsgHistory.push({ role: 'user', content: txt });
             appendBubble('user', txt);
+            saveChatHistory();
 
             try {
+                if (!API_KEY || API_KEY === "YOUR_GEMINI_API_KEY") {
+                    throw new Error("No AI adapter configured. Chat history and Save to Dura remain available locally.");
+                }
+
                 const response = await fetch(
                     `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
                     {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            system_instruction: {
-                                parts: [{ text: MAWUYA_SYSTEM_PROMPT }]
-                            },
+                            system_instruction: { parts: [{ text: MAWUYA_SYSTEM_PROMPT }] },
                             contents: mawuyaMsgHistory.map(m => ({
                                 role: m.role === 'assistant' ? 'model' : 'user',
                                 parts: [{ text: m.content }]
@@ -364,15 +674,38 @@ Your role:
                 const data = await response.json();
                 if (data.error) throw new Error(data.error.message);
 
-                const reply = data.candidates.content.parts.text;
+                const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (!reply) throw new Error("No reply returned by the AI adapter.");
+
                 mawuyaMsgHistory.push({ role: 'assistant', content: reply });
-                appendBubble('mawuya', reply);
+                saveChatHistory();
+                appendBubble('mawuya', reply, true);
 
             } catch (err) {
                 console.error("Mawuya Chat Error:", err);
-                appendBubble('alert', `[MAWUYA AUDIT ALERT]: ${err.message}`);
+                appendBubble('alert', `[MAWUYA AUDIT]: ${err.message}`);
             }
         }
+
+        // Restore persisted SokoChat whenever the drawer is opened.
+        const originalToggleMawuyaDrawer = toggleMawuyaDrawer;
+        toggleMawuyaDrawer = function() {
+            if (navigator.vibrate) navigator.vibrate([1, 2]);
+            const drawer = document.getElementById('mawuyaDrawer');
+            const willOpen = !drawer.classList.contains('open');
+            drawer.classList.toggle('open');
+            if (willOpen) renderHistory();
+        };
+
+        // Expose a small local Dura API for future Library UI integration.
+        window.MusasaDura = {
+            list: getDuraEntries,
+            saveExchange: saveExchangeToDura,
+            saveConversation: saveCurrentConversationToDura,
+            clear: clearDura
+        };
+
+        renderHistory();
     </script>
 </body>
 </html>
